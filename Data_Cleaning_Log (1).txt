@@ -1,0 +1,20 @@
+Merged on Customer_ID (1:1) -> 100000 rows, 100 cols
+Dropped 357 rows (0.36%) missing ALL core revenue/usage fields (rev_Mean, mou_Mean, totmrc_Mean, etc.) simultaneously -> these are unusable blank account-snapshots, not meaningfully imputable. Remaining: 99643 rows.
+change_mou / change_rev (891 missing): confirmed these belong to customers with less history available for month-over-month comparison. Left as NaN (true structural missingness) rather than imputing 0, which would falsely imply 'no change'. Excluded pairwise in analyses that use them.
+avg6mou/avg6qty/avg6rev (2,839 missing): verified these correspond to customers with short tenure (mean ~7.5 months vs ~19 months for non-missing) who simply haven't accumulated 6 months of history yet. Left as NaN (structural), flagged with 'has_6mo_history' indicator for future modeling.
+eqpdays (equipment age in days): 133 rows had small negative values (-1 to -5 days), consistent with activation/porting timing artifacts rather than real negative age. Clipped to 0 (cannot be negative by definition).
+Recoded missing values in 16 categorical/append fields (dwllsize, HHstatin, ownrent, dwlltype, infobase, prizm_social_one, marital, ethnic, kid0_2-16_17, creditcd, new_cell, hnd_webcap) to an explicit 'Unknown' category rather than imputing or dropping, preserving the that missingness itself may correlate with churn (untracked/unmatched customers).
+Numeric append fields left as NaN (not imputed): ['numbcars', 'lor', 'income', 'adults']. income (25.4% missing), lor=length of residence (30.2%), adults (23.0%), numbcars (49.4%). These will be handled explicitly during feature engineering (a later stage); imputing now would distort distribution-based EDA. Analyses use dropna() per-metric.
+truck/rv/forgntvl (1,732 missing, binary append flags): left as NaN — missing does not necessarily mean '0/No'; assuming so would fabricate data. Treated as 'Unknown' in categorical breakdowns.
+Duplicate full rows: 0. Duplicate Customer_IDs: 0. None found — no action needed.
+income: confirmed coded as an ordinal decile (1-9), not a dollar amount. Treated as ordinal/categorical in analysis, not averaged as if continuous currency.
+Outlier scan (1st/99th percentile bounds) on key metrics — flagged for awareness, NOT removed (high-usage/high-revenue customers are a legitimate and business-critical segment, not errors):
+   totrev: p1=143.21, p99=4429.89, rows beyond [p1,p99]=1994
+   totmou: p1=155.0, p99=40400.34, rows beyond [p1,p99]=1992
+   totcalls: p1=66.0, p99=17679.58, rows beyond [p1,p99]=1980
+   hnd_price: p1=9.99, p99=199.99, rows beyond [p1,p99]=632
+   mou_Mean: p1=0.0, p99=2422.4, rows beyond [p1,p99]=997
+   rev_Mean: p1=10.0, p99=227.89, rows beyond [p1,p99]=1979
+   eqpdays: p1=8.0, p99=1162.0, rows beyond [p1,p99]=1922
+   months: p1=6.0, p99=49.0, rows beyond [p1,p99]=823
+rev_Mean negative values: 5 rows — plausible billing credits/adjustments, not errors. Kept as-is, flagged.
