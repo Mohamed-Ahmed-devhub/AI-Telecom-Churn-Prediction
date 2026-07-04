@@ -45,3 +45,11 @@ This project predicts customer churn for a telecommunications company using Mach
 
 ## Author
 Mohamed Ahmed
+
+## Future Roadmap
+
+- Deploy the model as a web application
+- Integrate real-time prediction
+- Automate monthly retraining
+- Build an executive dashboard
+- Monitor model drift
